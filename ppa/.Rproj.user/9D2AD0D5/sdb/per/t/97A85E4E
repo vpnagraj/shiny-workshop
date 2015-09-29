@@ -1,0 +1,17 @@
+{
+    "contents" : "\n# This is the user-interface definition of a Shiny web application.\n# You can find out more about building applications with Shiny here:\n#\n# http://shiny.rstudio.com\n#\n\nlibrary(shiny)\n\nshinyUI(fluidPage(\n\n  # Application title\n  titlePanel(\"Pubmed Publication Authorship\"),\n\n  sidebarLayout(\n    sidebarPanel(\n      selectInput(inputId = \"author1\",\n                  label = \"First Author\",\n                  choices = c(\"Gawande AA\",\n                              \"Oz MC\",\n                              \"Kevorkian J\")),\n      selectInput(inputId = \"author2\",\n                label = \"Second Author\",\n                choices = c(\"Gawande AA\",\n                            \"Oz MC\",\n                            \"Kevorkian J\")),\n      actionButton(inputId = \"search\", label=\"Make it so ...\")\n  ),\n\n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"comparison\")\n    )\n  )\n))\n",
+    "created" : 1443536304261.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2806098586",
+    "id" : "97A85E4E",
+    "lastKnownWriteTime" : 1443543277,
+    "path" : "~/Sites/Shiny/shinyandnew/ppa/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

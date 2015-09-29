@@ -1,0 +1,81 @@
+# Shiny Class
+
+## AGENDA
+
+- 2:00-2:15 = introduction
+- 2:15-2:45 = ui.R
+- 2:45-3:15 = server.R
+- 3:15-3:30 = publication / hosting
+
+## Introduction
+
+- about me 
+
+	- research data analyst via web development via english literature
+	- available for consults / project-based assistance through the library
+
+- what shiny is
+
+	- light-weight web application framework for R
+	- helpful for creating dashboards, interactive visualizations, and 'data products'
+	- easiest way (IMO) to execute r code in a website ... there are methods for executing r scripts with php, python or other systems ... but nothing as straightforward or cheap (in terms of time) as shiny
+
+- what shiny isn't
+
+	- heavy duty web application (e.g. users, writing to database, etc.)
+	- mobile app development tool (shiny is responsive so it looks good on mobile displays ... as we'll discuss when we get to layout ... but it's not a tool for creating native mobile device apps)
+
+- resources
+
+	- shiny tutorial (http://shiny.rstudio.com/tutorial/)
+	- r-bloggers
+	- UVa UseR group
+	- me
+
+## ui.R
+
+- this is a little bit backwards (form before function ...) but ui.R manages input mechanisms, which are critical to server.R
+
+- application layouts
+
+	- [valuable resource](http://shiny.rstudio.com/articles/layout-guide.html)
+	- as a default shiny uses the bootstrap grid system
+	- but you can customize this with functions (that are passed as argument to the shinyui function) that call specific layouts
+	- fluidpage (most common)
+	- navbarpage (as the name suggests helpful for navigation)
+	- fixedpage (not recommended ... "breaks" the bootstrap)
+
+- sub layout elements
+
+	- tab panels
+	- navbar panels
+	- well panels
+	- etc.
+
+- input widgets
+
+- theming
+
+	- briefly touching on this ... NO PIXEL PUSHING
+	- shiny comes with bootstrap.css features
+	- you can add inline styling [EXAMPLE]
+	- you can add a /css directory and style sheets to your heart's content
+	- that's more advanced and frankly not really the "point" of shiny ... again this is a lightweight framework for you to quickly spin up a dashboard ... not a "pixel perfect" website
+	- but that said ... there are tools to quickly sub in new theme elements ... particulary the shinythemes package [EXAMPLE]
+
+## server.R
+
+- again IMO we've been moving a little bit backwards ... but server.R needs something to crunch ... and that's what the ui.R inputs will be giving us
+
+- the server.R script will let you do anything you can do in a regular r script (in terms of processing) ... in other words you can load data from elsewhere, train models, create plots, filter, write data out, etc.
+
+## Publishing Your App
+
+- you can run a shiny app locally through r studio ... while that may serve individual needs, the real purpose of creating an app with shiny is to make it accessible / interactive for others to
+
+- shinyapps.io
+	- free (up to x hours of usage per month)
+
+- shiny server
+	- i have a shiny server installed [EXAMPLE]
+	- if you're interested or have a project that you'd like hosted let me know and i can work it out

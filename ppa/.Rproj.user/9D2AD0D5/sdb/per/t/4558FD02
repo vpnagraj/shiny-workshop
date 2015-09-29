@@ -1,0 +1,18 @@
+{
+    "contents" : "library(rentrez)\n\nauthor <- \"Gawande AA\"\nmyterm <- paste(author, \"[Author]\", sep=\"\")\n\n\nq <- entrez_search(\"pubmed\", myterm, retmax = 9999)\nq$ids\nq$count\n\ndf <- data.frame(Author=author, Total.Publications = as.numeric(q$count))\n\nauthor2 <- \"Oz MC\"\nmyterm2 <- paste(author2, \"[Author]\", sep=\"\")\n\nq2 <- entrez_search(\"pubmed\", myterm2, retmax = 9999)\n\ndf2 <- data.frame(Author=author2, Total.Publications = as.numeric(q2$count))\n\ncombo_df <- rbind(df,df2)\n\nlibrary(ggplot2)\n\ng <- \n    ggplot(combo_df, aes(x=Author, y=Total.Publications)) +\n    geom_bar(stat = \"identity\") +\n    ggtitle(\"Pubmed Publication Authorship Comparison\")\ng\n\n",
+    "created" : 1443536320627.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "782555688",
+    "id" : "4558FD02",
+    "lastKnownWriteTime" : 1443537781,
+    "path" : "~/Sites/Shiny/shinyandnew/ppa/scratch.R",
+    "project_path" : "scratch.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
