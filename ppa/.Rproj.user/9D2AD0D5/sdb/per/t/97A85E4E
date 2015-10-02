@@ -1,13 +1,13 @@
 {
-    "contents" : "\n# This is the user-interface definition of a Shiny web application.\n# You can find out more about building applications with Shiny here:\n#\n# http://shiny.rstudio.com\n#\n\nlibrary(shiny)\n\nshinyUI(fluidPage(\n\n  # Application title\n  titlePanel(\"Pubmed Publication Authorship\"),\n\n  sidebarLayout(\n    sidebarPanel(\n      selectInput(inputId = \"author1\",\n                  label = \"First Author\",\n                  choices = c(\"Gawande AA\",\n                              \"Oz MC\",\n                              \"Kevorkian J\")),\n      selectInput(inputId = \"author2\",\n                label = \"Second Author\",\n                choices = c(\"Gawande AA\",\n                            \"Oz MC\",\n                            \"Kevorkian J\")),\n      actionButton(inputId = \"search\", label=\"Make it so ...\")\n  ),\n\n    # Show a plot of the generated distribution\n    mainPanel(\n      plotOutput(\"comparison\")\n    )\n  )\n))\n",
+    "contents" : "library(shiny)\n\nauthors <- read.csv(\"authors.csv\",stringsAsFactors = FALSE)\nauthor_vec <- authors$search_name\nnames(author_vec) <- authors$display_name\n\n# names(authors$search_name) <- authors$display_name\nshinyUI(fluidPage(\n\n  # Application title\n  titlePanel(\"Pubmed Publication Authorship\"),\n\n  sidebarLayout(\n    sidebarPanel(\n    selectInput(inputId = \"author1\",\n                label = \"First Author\",\n                choices = author_vec),   \n      selectInput(inputId = \"author2\",\n                label = \"Second Author\",\n                choices = author_vec),\n      actionButton(inputId = \"search\", label=\"Make it so ...\")\n  ),\n\n    mainPanel(\n      plotOutput(\"comparison\")\n    )\n  )\n))\n",
     "created" : 1443536304261.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2806098586",
+    "hash" : "2653576750",
     "id" : "97A85E4E",
-    "lastKnownWriteTime" : 1443543277,
-    "path" : "~/Sites/Shiny/shinyandnew/ppa/ui.R",
+    "lastKnownWriteTime" : 1443638976,
+    "path" : "~/Sites/Shiny/teaching/shinyandnew/ppa/ui.R",
     "project_path" : "ui.R",
     "properties" : {
     },

@@ -1,12 +1,10 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
-
 library(shiny)
 
+authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
+author_vec <- authors$search_name
+names(author_vec) <- authors$display_name
+
+# names(authors$search_name) <- authors$display_name
 shinyUI(fluidPage(
 
   # Application title
@@ -14,20 +12,15 @@ shinyUI(fluidPage(
 
   sidebarLayout(
     sidebarPanel(
-      selectInput(inputId = "author1",
-                  label = "First Author",
-                  choices = c("Gawande AA",
-                              "Oz MC",
-                              "Kevorkian J")),
+    selectInput(inputId = "author1",
+                label = "First Author",
+                choices = author_vec),   
       selectInput(inputId = "author2",
                 label = "Second Author",
-                choices = c("Gawande AA",
-                            "Oz MC",
-                            "Kevorkian J")),
+                choices = author_vec),
       actionButton(inputId = "search", label="Make it so ...")
   ),
 
-    # Show a plot of the generated distribution
     mainPanel(
       plotOutput("comparison")
     )
