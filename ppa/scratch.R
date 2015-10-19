@@ -3,7 +3,6 @@ library(rentrez)
 author <- "Gawande AA"
 myterm <- paste(author, "[Author]", sep="")
 
-
 q <- entrez_search("pubmed", myterm, retmax = 9999)
 q$ids
 q$count
