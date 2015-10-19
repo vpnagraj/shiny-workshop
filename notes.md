@@ -97,6 +97,42 @@ g
 
 ```
 
-## ui.R
+## Layouts
 
-The "scratch" script will serve as the basis for your server.R 
+The code you've written will be the basis of your server.R script. Before you can implement that, you need to make some decisions about layout. As a default, shiny uses the Bootstrap grid system. You can customize this to include sidebars, navbars, columns and more. All of the layout is handled within the ui.R file.
+
+ui.R is a essentially a collection of nested functions ... that's why the code can be kind of hard to look at. The baseline function is ```shinyUI()```
+
+Within that you can specify if you want your layout to be a ```fluidPage()``` (the default if you're using a template from RStudio), ```navbarPage()``` (as the name suggests, helpful for creating naviagtion) or ```fixedPage()``` (not recommended ... "breaks" the bootstrap).
+
+Nested even further, you can include sub layout elements like ```tabPanel()```
+
+We'll stick with defaults  you can refer to the [Shiny Application layout guide](http://shiny.rstudio.com/articles/layout-guide.html)
+
+
+- application layouts
+
+	- [valuable resource](http://shiny.rstudio.com/articles/layout-guide.html)
+	- but you can customize this with functions (that are passed as argument to the shinyui function) that call specific layouts
+	- fluidpage (most common)
+	- navbarpage (as the name suggests helpful for navigation)
+	- fixedpage (not recommended ... "breaks" the bootstrap)
+
+- sub layout elements
+
+	- tab panels
+	- navbar panels
+	- well panels
+	- etc.
+
+## 'Hello Widget'
+
+You've got the "scratch" code doing what you want it to. But now what?
+
+To get started, you need to decide what parameter you want to make dynamic – in other words, what variable do you want your users to be able to adjust to see how the results change. The class of this object will determine what kind of ui widget you'll start with. For example, if you have a continuous (numeric) variable then you may want to use a slider input or input box. On the other hand, if you have a discrete (factor) variable then you might need to use a select input or checkbox. There are [a lot of widgets](http://shiny.rstudio.com/gallery/widget-gallery.html) to choose from and a lot of ways you can use them.
+
+Once you've decided what input method use you'll need to write the code for that widget in the ui.R script. Widgets can go anywhere in the interface,  and give it an arbitrary but meaningful name. Adding 
+
+
+
+
