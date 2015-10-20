@@ -105,33 +105,84 @@ ui.R is a essentially a collection of nested functions ... that's why the code c
 
 Within that you can specify if you want your layout to be a ```fluidPage()``` (the default if you're using a template from RStudio), ```navbarPage()``` (as the name suggests, helpful for creating naviagtion) or ```fixedPage()``` (not recommended ... "breaks" the bootstrap).
 
-Nested even further, you can include sub layout elements like ```tabPanel()```
+Nested further, you can include sub layout regions like ```sidebarLayout()``` and ```fluidRow```.
 
-We'll stick with defaults  you can refer to the [Shiny Application layout guide](http://shiny.rstudio.com/articles/layout-guide.html)
+And even _further_ you can nest individual elements with ```tabPanel()``` or ```sidebarPanel()``` or ```column()``` functions.
 
+We'll stick with default sidebar layout that RStudio gives us. But you can refer to the [Shiny Application layout guide](http://shiny.rstudio.com/articles/layout-guide.html) for more advanced configurations.
 
-- application layouts
+```
+library(shiny)
 
-	- [valuable resource](http://shiny.rstudio.com/articles/layout-guide.html)
-	- but you can customize this with functions (that are passed as argument to the shinyui function) that call specific layouts
-	- fluidpage (most common)
-	- navbarpage (as the name suggests helpful for navigation)
-	- fixedpage (not recommended ... "breaks" the bootstrap)
+shinyUI(fluidPage(
 
-- sub layout elements
+  # Application title
+  titlePanel("Old Faithful Geyser Data"),
 
-	- tab panels
-	- navbar panels
-	- well panels
-	- etc.
+  # Sidebar with a slider input for number of bins
+  sidebarLayout(
+    sidebarPanel(
+
+    ),
+
+    # Show a plot of the generated distribution
+    mainPanel(
+    )
+  )
+))
+
+```
 
 ## 'Hello Widget'
 
-You've got the "scratch" code doing what you want it to. But now what?
+You've got the "scratch" code doing what you want it to. And you've got the basic idea of what the layout will be.
 
-To get started, you need to decide what parameter you want to make dynamic – in other words, what variable do you want your users to be able to adjust to see how the results change. The class of this object will determine what kind of ui widget you'll start with. For example, if you have a continuous (numeric) variable then you may want to use a slider input or input box. On the other hand, if you have a discrete (factor) variable then you might need to use a select input or checkbox. There are [a lot of widgets](http://shiny.rstudio.com/gallery/widget-gallery.html) to choose from and a lot of ways you can use them.
+But now what?
 
-Once you've decided what input method use you'll need to write the code for that widget in the ui.R script. Widgets can go anywhere in the interface,  and give it an arbitrary but meaningful name. Adding 
+You need to decide what parameter you want to make dynamic – in other words, what variable do you want your users to be able to adjust to see how the results change. The class of this object will determine what kind of widget you'll start with. For example, if you have a continuous (numeric) variable then you may want to use a slider input or input box. On the other hand, if you have a discrete (factor) variable then you might need to use a select input or checkbox. There are [a lot of widgets](http://shiny.rstudio.com/gallery/widget-gallery.html) to choose from and a lot of ways you can use them.
+
+Once you've decided what input method use you'll need to write the code for that widget in the ui.R script. Widgets can go inside any of the layout elements. 
+
+Every widget needs a name – this is a semi-arbitrary distinction you can make with the first, inputId argument to the widget function. Although you can freely name the widget, it's only semi-arbitrary because it the inputId must be unique (not used by another widget) and should be somewhat meaningful as you'll be calling the widget in the server.R script as well.
+
+```
+library(shiny)
+
+shinyUI(fluidPage(
+    
+    # Application title
+    titlePanel("Pubmed Publication Authorship"),
+    
+    sidebarLayout(
+        sidebarPanel(
+            selectInput(inputId = "author1",
+                        label = "First Author",
+                        choices = author_vec),   
+            selectInput(inputId = "author2",
+                        label = "Second Author",
+                        choices = author_vec)
+        ),
+        
+        mainPanel(
+            plotOutput("comparison")
+        )
+    )
+))
+
+```
+
+## ;,})!
+
+This is as good a place as any to stop and make a few comments about Shiny's syntax.
+
+If you're not careful you can get mystified pretty easily while writing your app ... and / or spend way too much time looking for a missing comma or extra parenthesis. Debugging these syntactic errors can be a bigger headache in a Shiny app than it is an regular R script.
+
+Fortunately, RStudio is pretty good about highlighting breaks in code syntax. With all the nested functions in the ui.R script, it's important to look out for any open parentheses. Another tip is to remember that UI elements are each arguments to functions – as such, they're separated by commas.
+
+The server.R script has a slightly different syntax. It always starts with something like ```shinyServer(function(input, output) {``` and ends with ```})``` to close out that outermost function. Because the code inside of that first ```{``` is being defined as part of a function (and not a series of arguments) you don't need to use commas while separating objects. You will need to use the ```({``` while calling render functions for the output.
+
+These are just a few basic tips but they might save you a headache or two, especially at the beginning. 
+
 
 
 
