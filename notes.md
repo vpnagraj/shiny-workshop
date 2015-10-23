@@ -22,6 +22,7 @@ It's built to run code written in R, and is maintained by RStudio. There's reall
 - [Collection of posts covering the basics of layout, reactivity and extensions for Shiny](http://shiny.rstudio.com/articles/)
 - [RStudio 'cheatsheet' for Shiny](https://www.rstudio.com/wp-content/uploads/2015/02/shiny-cheatsheet.pdf)
 - [R-Bloggers articles featuring Shiny apps](http://www.r-bloggers.com/?s=shiny)
+- [RStudio webinar slides for getting started with Shiny](http://bit.ly/shiny-quickstart-1)
 
 
 ## 'Bones' of a Shiny App
@@ -132,8 +133,8 @@ shinyUI(fluidPage(
 ))
 
 ```
-
-## 'Hello Widget'
+## User Inputs
+###'Hello Widget'
 
 You've got the "scratch" code doing what you want it to. And you've got the basic idea of what the layout will be.
 
@@ -171,7 +172,8 @@ shinyUI(fluidPage(
 
 ```
 
-## ;,})!
+## Syntax / Punctuation
+### ;,})!
 
 This is as good a place as any to stop and make a few comments about Shiny's syntax.
 
@@ -185,8 +187,170 @@ These are just a few basic tips but they might save you a headache or two, espec
 
 ## server.R
 
+The foundation for the server.R script is in the "scratch" file. For this code to work with ui.R, you need to add calls to the widget inputs / display outputs. 
+
+Let's start with the input mechanisms ... after all, the output depends on the values that the users enter into these widgets.
+
+Accessing the input widget is easy. Use 'input$' followed by the 
+
+
+```
+library(shiny)
+
+shinyServer(function(input, output) {
+                     
+    output$comparison <- renderPlot({
+
+      library(rentrez)
+      author <- input$author1
+      myterm <- paste(author, "[Author]", sep="")
+      
+      
+      q <- entrez_search("pubmed", myterm, retmax = 9999)
+      q$ids
+      q$count
+      
+      df <- data.frame(Author=author, Total.Publications = as.numeric(q$count))
+      
+      author2 <- input$author2
+      myterm2 <- paste(author2, "[Author]", sep="")
+      
+      q2 <- entrez_search("pubmed", myterm2, retmax = 9999)
+      
+      df2 <- data.frame(Author=author2, Total.Publications = as.numeric(q2$count))
+      
+      combo_df <- rbind(df,df2)
+      
+      library(ggplot2)
+      
+      g <- 
+          ggplot(combo_df, aes(x=Author, y=Total.Publications)) +
+          geom_bar(stat = "identity") +
+          ggtitle("Pubmed Publication Authorship Comparison")
+      g
+  })
+
+})
+
+
+## Reactivity
+
+Demonstrate ```actionButton()``` and ```observeEvent()```
+
+Explain that ```renderPlot()``` and other render* functions are always reactive ...
+
+You can also make an expression reactive outside of a render* function with ```reactive()``` and this is helpful if you're using the same data calculate on an input in different outputs
+
+You can *prevent reactions* with ```isolate()```
+
+You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
+
+
+```
+library(shiny)
+
+shinyServer(function(input, output) {
+    
+    observeEvent(input$search, {
+                 
+    output$comparison <- renderPlot({
+
+      library(rentrez)
+      author <- input$author1
+      myterm <- paste(author, "[Author]", sep="")
+      
+      
+      q <- entrez_search("pubmed", myterm, retmax = 9999)
+      q$ids
+      q$count
+      
+      df <- data.frame(Author=author, Total.Publications = as.numeric(q$count))
+      
+      author2 <- input$author2
+      myterm2 <- paste(author2, "[Author]", sep="")
+      
+      q2 <- entrez_search("pubmed", myterm2, retmax = 9999)
+      
+      df2 <- data.frame(Author=author2, Total.Publications = as.numeric(q2$count))
+      
+      combo_df <- rbind(df,df2)
+      
+      library(ggplot2)
+      
+      g <- 
+          ggplot(combo_df, aes(x=Author, y=Total.Publications)) +
+          geom_bar(stat = "identity") +
+          ggtitle("Pubmed Publication Authorship Comparison")
+      g
+  })
+
+})
+
+})
+```
+
+```
+library(shiny)
+
+shinyUI(fluidPage(
+
+  # Application title
+  titlePanel("Pubmed Publication Authorship"),
+
+  sidebarLayout(
+    sidebarPanel(
+    selectInput(inputId = "author1",
+                label = "First Author",
+                choices = author_vec),
+    selectInput(inputId = "author2",
+                label = "Second Author",
+                choices = author_vec),
+      actionButton(inputId = "search", 
+                   label="Make it so ...")
+  ),
+
+    mainPanel(
+      plotOutput("comparison")
+    )
+  )
+))
+```
+
+
+## Loading Data
 
 
 
+```
+library(shiny)
 
+authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
+author_vec <- authors$search_name
+names(author_vec) <- authors$display_name
 
+# names(authors$search_name) <- authors$display_name
+shinyUI(fluidPage(
+
+  # Application title
+  titlePanel("Pubmed Publication Authorship"),
+
+  sidebarLayout(
+    sidebarPanel(
+    selectInput(inputId = "author1",
+                label = "First Author",
+                choices = author_vec),
+    selectInput(inputId = "author2",
+                label = "Second Author",
+                choices = author_vec),
+      actionButton(inputId = "search", 
+                   label="Make it so ...")
+  ),
+
+    mainPanel(
+      plotOutput("comparison")
+    )
+  )
+))
+```
+
+## Hosting
