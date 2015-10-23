@@ -231,7 +231,7 @@ shinyServer(function(input, output) {
   })
 
 })
-
+```
 
 ## Reactivity
 
