@@ -157,10 +157,10 @@ shinyUI(fluidPage(
         sidebarPanel(
             selectInput(inputId = "author1",
                         label = "First Author",
-                        choices = author_vec),   
+                        choices = "Gawande AA"),   
             selectInput(inputId = "author2",
                         label = "Second Author",
-                        choices = author_vec)
+                        choices = "Oz MC")
         ),
         
         mainPanel(
@@ -182,6 +182,9 @@ Fortunately, RStudio is pretty good about highlighting breaks in code syntax. Wi
 The server.R script has a slightly different syntax. It always starts with something like ```shinyServer(function(input, output) {``` and ends with ```})``` to close out that outermost function. Because the code inside of that first ```{``` is being defined as part of a function (and not a series of arguments) you don't need to use commas while separating objects. You will need to use the ```({``` while calling render functions for the output.
 
 These are just a few basic tips but they might save you a headache or two, especially at the beginning. 
+
+## server.R
+
 
 
 

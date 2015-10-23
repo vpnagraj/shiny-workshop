@@ -14,11 +14,12 @@ shinyUI(fluidPage(
     sidebarPanel(
     selectInput(inputId = "author1",
                 label = "First Author",
-                choices = author_vec),   
-      selectInput(inputId = "author2",
+                choices = author_vec),
+    selectInput(inputId = "author2",
                 label = "Second Author",
                 choices = author_vec),
-      actionButton(inputId = "search", label="Make it so ...")
+      actionButton(inputId = "search", 
+                   label="Make it so ...")
   ),
 
     mainPanel(
