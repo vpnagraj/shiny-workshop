@@ -51,7 +51,7 @@ So before you sink a bunch of time into creating an app that passes the paramete
 
 And it's worth pointing out that creating another file with a ".R" extension in the same directory as your ui.R and server.R files won't cause any conflicts.
 
-```
+```R
 # load reentrez package for pubmed query
 library(rentrez)
 
@@ -112,7 +112,7 @@ And even _further_ you can nest individual elements with ```tabPanel()``` or ```
 
 We'll stick with default sidebar layout that RStudio gives us. But you can refer to the [Shiny Application layout guide](http://shiny.rstudio.com/articles/layout-guide.html) for more advanced configurations.
 
-```
+```R
 library(shiny)
 
 shinyUI(fluidPage(
@@ -134,7 +134,6 @@ shinyUI(fluidPage(
 
 ```
 ## Inputs / Outputs
-###'Hello Widget'
 
 You've got the "scratch" code doing what you want it to. And you've got the basic idea of what the layout will be.
 
@@ -146,22 +145,28 @@ Once you've decided what input method use you'll need to write the code for that
 
 Every widget needs a name – this is a semi-arbitrary distinction you can make with the first, inputId argument to the widget function. Although you can freely name the widget, it's only semi-arbitrary because it the inputId must be unique (not used by another widget) and should be somewhat meaningful as you'll be calling the widget in the server.R script as well.
 
-```
+```R
 library(shiny)
 
 shinyUI(fluidPage(
     
     # Application title
-    titlePanel("Pubmed Publication Authorship"),
+    <pre>
+    <font color="red">titlePanel("Pubmed Publication Authorship"),</font>
+    </pre>
     
     sidebarLayout(
         sidebarPanel(
+        	<pre>
+        	<font color="red">
             selectInput(inputId = "author1",
                         label = "First Author",
                         choices = "Gawande AA"),   
             selectInput(inputId = "author2",
                         label = "Second Author",
                         choices = "Oz MC")
+            </font>
+            </pre>
         ),
         
         mainPanel(
@@ -201,9 +206,7 @@ In the ui.R you have to specify a display output – like input widgets, these c
 
 Within the server.R script you'll need to call the UI output in the same way as the input – use 'output$' followed by the name you gave the 'id' argument.
 
-The last step is to assign 
-
-
+The last step is to assign the output in the server script to a render function (e.g. ```renderPlot()``` or ```renderText()```) that contains the scratch script modified with the 'input$' call.
 
 ```R
 library(shiny)
@@ -300,7 +303,7 @@ shinyServer(function(input, output) {
 })
 ```
 
-```
+```R
 library(shiny)
 
 shinyUI(fluidPage(
@@ -330,9 +333,7 @@ shinyUI(fluidPage(
 
 ## Loading Data
 
-
-
-```
+```R
 library(shiny)
 
 authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
