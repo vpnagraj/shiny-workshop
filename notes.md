@@ -133,7 +133,7 @@ shinyUI(fluidPage(
 ))
 
 ```
-## User Inputs
+## Inputs / Outputs
 ###'Hello Widget'
 
 You've got the "scratch" code doing what you want it to. And you've got the basic idea of what the layout will be.
@@ -191,10 +191,21 @@ The foundation for the server.R script is in the "scratch" file. For this code t
 
 Let's start with the input mechanisms ... after all, the output depends on the values that the users enter into these widgets.
 
-Accessing the input widget is easy. Use 'input$' followed by the 
+Accessing the input widget is easy. Use 'input$' followed by the name you gave the 'id' argument over in the ui.R file wherever you want to the input to be a control.
+
+Let's say, for example, you wanted to create a histogram of random values while allowing the user to select sample size. If you had a numeric input called 'samplesize' then the syntax for the server.R portion of the code would include ```hist(rand(input$samplesize))```
+
+The code above would take care of the _input_ portion of the histogram. To finish the thought and _output_ the plot you need two more pieces ...
+
+In the ui.R you have to specify a display output – like input widgets, these come in different flavors (e.g ```plotOutput()``` or ```textOutput()``` or ```tableOutput()```), can live anywhere in the layout and must be given an arbitrary id.
+
+Within the server.R script you'll need to call the UI output in the same way as the input – use 'output$' followed by the name you gave the 'id' argument.
+
+The last step is to assign 
 
 
-```
+
+```R
 library(shiny)
 
 shinyServer(function(input, output) {
@@ -246,7 +257,7 @@ You can *prevent reactions* with ```isolate()```
 You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
 
 
-```
+```R
 library(shiny)
 
 shinyServer(function(input, output) {
