@@ -145,7 +145,7 @@ Once you've decided what input method use you'll need to write the code for that
 
 Every widget needs a name – this is a semi-arbitrary distinction you can make with the first, inputId argument to the widget function. Although you can freely name the widget, it's only semi-arbitrary because it the inputId must be unique (not used by another widget) and should be somewhat meaningful as you'll be calling the widget in the server.R script as well.
 
-```R
+```
 library(shiny)
 
 shinyUI(fluidPage(
