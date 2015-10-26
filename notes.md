@@ -39,7 +39,7 @@ There are a couple ways to build out the skeleton of your first Shiny project. Y
 Like we mentioned above, Shiny is developed by RStudio. So it's no suprise that the RStudio IDE has some Shiny-related features. In particular, the Shiny project structure makes it really easy to spin up app templates. To use this feature:
 
 1. Create a new project in RStudio (either in a new directory or existing directory)
-2. Select Shiny app and give it a name.
+2. Select Shiny app and give it a name
 
 This will create a ui.R, server.R and .Rproj file (which is useful for maintaining a relative file structure when you're working on your app ...) all in the directory you've specified.
 
@@ -52,7 +52,8 @@ So before you sink a bunch of time into creating an app that passes the paramete
 And it's worth pointing out that creating another file with a ".R" extension in the same directory as your ui.R and server.R files won't cause any conflicts.
 
 ```R
-# load reentrez package for pubmed query
+# install and load reentrez package for pubmed query
+#install.packages("rentrez")
 library(rentrez)
 
 # specify author
@@ -190,7 +191,7 @@ The foundation for the server.R script is in the "scratch" file. For this code t
 
 Let's start with the input mechanisms ... after all, the output depends on the values that the users enter into these widgets.
 
-Accessing the input widget is easy. Use 'input$' followed by the name you gave the 'id' argument over in the ui.R file wherever you want to the input to be a control.
+Accessing an input widget is easy. Use 'input$' followed by the name you gave the 'id' argument over in the ui.R file wherever you want to the input to be a control.
 
 Let's say, for example, you wanted to create a histogram of random values while allowing the user to select sample size. If you had a numeric input called 'samplesize' then the syntax for the server.R portion of the code would include ```hist(rand(input$samplesize))```
 
@@ -243,16 +244,26 @@ shinyServer(function(input, output) {
 
 ## Reactivity
 
-Demonstrate ```actionButton()``` and ```observeEvent()```
+By building ui.R and server.R in the manner described above, the output of the app will update every time the input is changed. This fact may sound simple and could very well be taken for granted. But it demonstrates one of the fundamental features of Shiny – _reactivity_.
 
-Explain that ```renderPlot()``` and other render* functions are always reactive ...
+A reactive element will update the output based on input.
 
-You can also make an expression reactive outside of a render* function with ```reactive()``` and this is helpful if you're using the same data calculate on an input in different outputs
+By default, all of the 'render' functions are reactive:
+	
+	- ```renderPlot()```
+	- ```renderText()```
 
-You can *prevent reactions* with ```isolate()```
+It's also possible to force an element to be reactive with the ```reactive()``` function. This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
 
-You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
+Reactivity may not always be desireable. In some cases, you may want to only trigger a reaction after the user has input 'signed off' on the submission of the  data ... ```actionButton()``` and ```observeEvent()``` in combination will do just that.
 
+In general, Shiny makes it possible to interrupt reactivity in many differnt ways:
+
+- You can *prevent reactions* with ```isolate()```
+
+- You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
+
+- You can force an element to be reactive with the ```reactive()``` function. This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
 
 ```R
 library(shiny)
@@ -307,12 +318,12 @@ shinyUI(fluidPage(
 
   sidebarLayout(
     sidebarPanel(
-    selectInput(inputId = "author1",
-                label = "First Author",
-                choices = author_vec),
-    selectInput(inputId = "author2",
-                label = "Second Author",
-                choices = author_vec),
+      selectInput(inputId = "author1",
+                  label = "First Author",
+                  choices = "Gawande AA"),   
+      selectInput(inputId = "author2",
+                  label = "Second Author",
+                  choices = "Oz MC"),
       actionButton(inputId = "search", 
                    label="Make it so ...")
   ),
@@ -327,6 +338,8 @@ shinyUI(fluidPage(
 
 ## Loading Data
 
+Note that data loaded before the ```shinyUI()``` or ```shinyServer()``` functions is available in the environment, and is only read in once when the server is started.
+
 ```R
 library(shiny)
 
@@ -334,7 +347,6 @@ authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
 author_vec <- authors$search_name
 names(author_vec) <- authors$display_name
 
-# names(authors$search_name) <- authors$display_name
 shinyUI(fluidPage(
 
   # Application title
@@ -360,3 +372,5 @@ shinyUI(fluidPage(
 ```
 
 ## Hosting
+
+Once the app is completed, the final question to ask is how to host it ...
