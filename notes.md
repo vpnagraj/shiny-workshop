@@ -145,28 +145,22 @@ Once you've decided what input method use you'll need to write the code for that
 
 Every widget needs a name – this is a semi-arbitrary distinction you can make with the first, inputId argument to the widget function. Although you can freely name the widget, it's only semi-arbitrary because it the inputId must be unique (not used by another widget) and should be somewhat meaningful as you'll be calling the widget in the server.R script as well.
 
-```
+```R
 library(shiny)
 
 shinyUI(fluidPage(
     
     # Application title
-    <pre>
-    <font color="red">titlePanel("Pubmed Publication Authorship"),</font>
-    </pre>
+    titlePanel("Pubmed Publication Authorship"),
     
     sidebarLayout(
         sidebarPanel(
-        	<pre>
-        	<font color="red">
             selectInput(inputId = "author1",
                         label = "First Author",
                         choices = "Gawande AA"),   
             selectInput(inputId = "author2",
                         label = "Second Author",
                         choices = "Oz MC")
-            </font>
-            </pre>
         ),
         
         mainPanel(
