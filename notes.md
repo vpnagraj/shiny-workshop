@@ -6,7 +6,7 @@
 
 Shiny is a light-weight web application framework. What does that mean? 
 
-Shiny might be the right tool if:
+It means that Shiny has essentia
 
 - You want to execute R code dynamically based on user input
 
@@ -15,7 +15,6 @@ You might be better off using something other than Shiny if:
 - You need to create a website with lots of users
 - You need to create a native mobile app
 
-
 It's built to run code written in R, and is maintained by RStudio. There's really robust documentation and plenty of resources both for beginners and advanced Shiny developers:
 
 - [Tutorial for those new to Shiny](http://shiny.rstudio.com/tutorial/)
@@ -23,7 +22,6 @@ It's built to run code written in R, and is maintained by RStudio. There's reall
 - [RStudio 'cheatsheet' for Shiny](https://www.rstudio.com/wp-content/uploads/2015/02/shiny-cheatsheet.pdf)
 - [R-Bloggers articles featuring Shiny apps](http://www.r-bloggers.com/?s=shiny)
 - [RStudio webinar slides for getting started with Shiny](http://bit.ly/shiny-quickstart-1)
-
 
 ## 'Bones' of a Shiny App
 
@@ -134,7 +132,8 @@ shinyUI(fluidPage(
 ))
 
 ```
-## Inputs / Outputs
+
+## Input / Output
 
 You've got the "scratch" code doing what you want it to. And you've got the basic idea of what the layout will be.
 
@@ -173,7 +172,6 @@ shinyUI(fluidPage(
 ```
 
 ## Syntax / Punctuation
-### ;,})!
 
 This is as good a place as any to stop and make a few comments about Shiny's syntax.
 
@@ -244,26 +242,32 @@ shinyServer(function(input, output) {
 
 ## Reactivity
 
-By building ui.R and server.R in the manner described above, the output of the app will update every time the input is changed. This fact may sound simple and could very well be taken for granted. But it demonstrates one of the fundamental features of Shiny – _reactivity_.
+By building ui.R and server.R in the manner described above, the output of the app will update every time the input is changed. This fact may sound simple and could easily be taken for granted. But it demonstrates one of the fundamental features of Shiny: _reactivity_.
 
-A reactive element will update the output based on input.
+A reactive element will update output based on input.
 
 By default, all of the 'render' functions are reactive:
 	
 	- ```renderPlot()```
 	- ```renderText()```
+	- ```renderTable()```
+	- ```renderDataTable()```
+	- ```renderImage()````
+	- ```renderUI()```
+	- ```renderPrint()```
+
 
 It's also possible to force an element to be reactive with the ```reactive()``` function. This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
 
 Reactivity may not always be desireable. In some cases, you may want to only trigger a reaction after the user has input 'signed off' on the submission of the  data ... ```actionButton()``` and ```observeEvent()``` in combination will do just that.
 
-In general, Shiny makes it possible to interrupt reactivity in many differnt ways:
+In general, Shiny makes it possible to interrupt reactivity in several different ways:
 
-- You can *prevent reactions* with ```isolate()```
+- You can *prevent* reactions with ```isolate()```
 
 - You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
 
-- You can force an element to be reactive with the ```reactive()``` function. This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
+- You can *force* reactions with ```reactive()``` This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
 
 ```R
 library(shiny)
@@ -335,10 +339,13 @@ shinyUI(fluidPage(
 ))
 ```
 
-
 ## Loading Data
 
-Note that data loaded before the ```shinyUI()``` or ```shinyServer()``` functions is available in the environment, and is only read in once when the server is started.
+In some cases, it makes sense to create objects before any of the reactive stuff kicks off.
+
+For example, you might want to load a dataset to be filtered and analyzed by the server.R code.
+
+Anything before the ```shinyUI()``` or ```shinyServer()``` functions is only run once (when the server is started) and is available for use in the environment.
 
 ```R
 library(shiny)
@@ -371,6 +378,82 @@ shinyUI(fluidPage(
 ))
 ```
 
+## Theming
+
+This will be brief. 
+
+But yes you can totally "make the font bigger ... oh no not that big ... yeah that's perfect ... actually maybe it was better before ..."
+
+The "tags$" syntax allows you to access individual HTML elements. For example, ```tags$b(textOutput("example"))``` in the ui.R script would make all of the text output for "example" bold.
+
+By creating a "www" directory in the root your app file structure (i.e. next to your ui.R and server.R scripts) you can insert style-sheet (CSS) files. The CSS is used to control how individual HTML elements display on the page(s) of your Shiny app. Note that these _must_ go in a directory called "www".
+
+If you're really into pixel pushing with CSS, try checking out [this tutorial](http://shiny.rstudio.com/articles/css.html).
+
+And if you just want to try out some different theming options (for font size, button style, etc.) you can use the **shinythemes** package. RStudio has written [some helpful documentation](http://rstudio.github.io/shinythemes/) for that library.
+
+```R
+library(shiny)
+library(shinythemes)
+
+authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
+author_vec <- authors$search_name
+names(author_vec) <- authors$display_name
+
+shinyUI(fluidPage(theme = shinytheme("journal"),
+
+  # Application title
+  titlePanel("Pubmed Publication Authorship"),
+
+  sidebarLayout(
+    sidebarPanel(
+    selectInput(inputId = "author1",
+                label = "First Author",
+                choices = author_vec),
+    selectInput(inputId = "author2",
+                label = "Second Author",
+                choices = author_vec),
+      actionButton(inputId = "search", 
+                   label="Make it so ...")
+  ),
+
+    mainPanel(
+      plotOutput("comparison")
+    )
+  )
+))
+```
+ 
+## runApp()
+
+If you're using RStudio and are looking at either the ui.R or server.R scripts in the source viewer, you'll see a button with a green arrow that says "Run App" in the upper right corner of the panel. Pressing that button will open your app in an external RStudio window.
+
+Your console pane in RStudio will tell you that your R session is busy listening on a local port. You can halt the app in the console with the stop sign button. 
+
+And if you're not using RStudio (or if you want to customize _how_ the app is running) it's possible to start the app with ```runApp()```
+
+```R
+runApp(displaymode="showcase")
+```
+
 ## Hosting
 
-Once the app is completed, the final question to ask is how to host it ...
+Running your app locally is a great way to prototype. But it's local. That means only on your computer.
+
+To host the app so other people can view it on the internet, you'll need a system with a Shiny server that's running and configured.
+
+There are a few avenues you could pursue:
+
+- [shinyapps.io](https://www.shinyapps.io/)(mix of free and fee-based options depending on up-time, number of apps and authentication)
+- [Shiny Server](https://www.rstudio.com/products/shiny/shiny-server/)(free but must be configured and installed on your hardware)
+- [Shiny Server Pro](https://www.rstudio.com/products/shiny-server-pro/)(fee-based but is professionally configured and maintained)
+
+N.B. Each of these solutions has advantages and disadvantages. If you're intereseted in hosting an app, think long and hard about the budget you have for you app, the longevity of the project and any security concerns you have for the data involved.
+
+```R
+# install.packages("devtools") # http://shiny.rstudio.com/articles/shinyapps.html
+# devtools::install_github('rstudio/rsconnect')
+library(rsconnect)
+deployApp()
+```
+
