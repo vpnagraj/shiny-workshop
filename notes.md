@@ -6,16 +6,13 @@
 
 Shiny is a light-weight web application framework. What does that mean? 
 
-It means that Shiny has essentia
+It means that Shiny was built to execute R code dynamically based on user input. That's it.
 
-- You want to execute R code dynamically based on user input
+If you're trying to create a "heavy" website (e.g. lots of users, complex database structure, etc.) or a native mobile app (like the kind you install of your iThing), then you should probably look elsewhere.
 
-You might be better off using something other than Shiny if:
+Shiny is built to run code written in R, and it can showcase any of the computational "stuff" R is capable of.
 
-- You need to create a website with lots of users
-- You need to create a native mobile app
-
-It's built to run code written in R, and is maintained by RStudio. There's really robust documentation and plenty of resources both for beginners and advanced Shiny developers:
+It's maintained by RStudio, and there's robust documentation and resources for both beginners and advanced Shiny developers:
 
 - [Tutorial for those new to Shiny](http://shiny.rstudio.com/tutorial/)
 - [Collection of posts covering the basics of layout, reactivity and extensions for Shiny](http://shiny.rstudio.com/articles/)
@@ -252,7 +249,7 @@ By default, all of the 'render' functions are reactive:
 	- ```renderText()```
 	- ```renderTable()```
 	- ```renderDataTable()```
-	- ```renderImage()````
+	- ```renderImage()```
 	- ```renderUI()```
 	- ```renderPrint()```
 
@@ -423,7 +420,7 @@ shinyUI(fluidPage(theme = shinytheme("journal"),
   )
 ))
 ```
- 
+
 ## runApp()
 
 If you're using RStudio and are looking at either the ui.R or server.R scripts in the source viewer, you'll see a button with a green arrow that says "Run App" in the upper right corner of the panel. Pressing that button will open your app in an external RStudio window.
@@ -433,7 +430,7 @@ Your console pane in RStudio will tell you that your R session is busy listening
 And if you're not using RStudio (or if you want to customize _how_ the app is running) it's possible to start the app with ```runApp()```
 
 ```R
-runApp(displaymode="showcase")
+runApp(display.mode="showcase")
 ```
 
 ## Hosting
@@ -444,9 +441,9 @@ To host the app so other people can view it on the internet, you'll need a syste
 
 There are a few avenues you could pursue:
 
-- [shinyapps.io](https://www.shinyapps.io/)(mix of free and fee-based options depending on up-time, number of apps and authentication)
-- [Shiny Server](https://www.rstudio.com/products/shiny/shiny-server/)(free but must be configured and installed on your hardware)
-- [Shiny Server Pro](https://www.rstudio.com/products/shiny-server-pro/)(fee-based but is professionally configured and maintained)
+- [shinyapps.io](https://www.shinyapps.io/) (mix of free and fee-based options depending on up-time, number of apps and authentication)
+- [Shiny Server](https://www.rstudio.com/products/shiny/shiny-server/) (free but must be configured and installed on your hardware)
+- [Shiny Server Pro](https://www.rstudio.com/products/shiny-server-pro/) (fee-based but is professionally configured and maintained)
 
 N.B. Each of these solutions has advantages and disadvantages. If you're intereseted in hosting an app, think long and hard about the budget you have for you app, the longevity of the project and any security concerns you have for the data involved.
 
