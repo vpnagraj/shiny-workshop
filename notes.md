@@ -255,13 +255,19 @@ By default, all of the 'render' functions are reactive:
 
 Reactivity may not always be desireable. In some cases, you may want to only trigger a reaction after the user has input 'signed off' on the submission of the  data ... ```actionButton()``` and ```observeEvent()``` in combination will do just that.
 
-In general, Shiny makes it possible to interrupt reactivity in several different ways:
+Shiny makes it possible to manage reactivity in different ways:
 
 - You can *prevent* reactions with ```isolate()```
 
-- You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
+- You can *delay* reactions with ```eventReactive()```
 
-- You can *force* reactions with ```reactive()```
+- You can *modularize* reactions with ```reactive()```
+
+- You can *trigger* reactions with ```observeEvent()```
+
+- You can *customize* reactions with ```reactiveValues()```
+
+Credit is due to the RStudio group that put together the Shiny webinar series ... [their material](https://github.com/rstudio/webinars/blob/master/09-How-to-start-with-Shiny-Part-2/02-How-to-start-2.pdf) makes it much easier to understand the concept of reactivity.
 
 ```R
 library(shiny)
