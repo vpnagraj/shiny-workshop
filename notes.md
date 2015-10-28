@@ -245,16 +245,13 @@ A reactive element will update output based on input.
 
 By default, all of the 'render' functions are reactive:
 	
-	- ```renderPlot()```
-	- ```renderText()```
-	- ```renderTable()```
-	- ```renderDataTable()```
-	- ```renderImage()```
-	- ```renderUI()```
-	- ```renderPrint()```
-
-
-It's also possible to force an element to be reactive with the ```reactive()``` function. This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
+- ```renderPlot()```
+- ```renderText()```
+- ```renderTable()```
+- ```renderDataTable()``` 
+- ```renderImage()```
+- ```renderUI()```
+- ```renderPrint()```
 
 Reactivity may not always be desireable. In some cases, you may want to only trigger a reaction after the user has input 'signed off' on the submission of the  data ... ```actionButton()``` and ```observeEvent()``` in combination will do just that.
 
@@ -264,7 +261,7 @@ In general, Shiny makes it possible to interrupt reactivity in several different
 
 - You can *delay reactions* with ```eventReactive()``` ... this is a bit like ```reactive()``` and ```observeEvent()``` combined  ... you can use this to cache values for use in multiple objects, and wait to do so until the action is triggered.
 
-- You can *force* reactions with ```reactive()``` This may be helpful in cases where you want to re-use processing on data in multiple output elements – without pulling out all of the computation and making reactive, you would have to peform that manipulation in each output.
+- You can *force* reactions with ```reactive()```
 
 ```R
 library(shiny)
