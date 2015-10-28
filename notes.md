@@ -8,9 +8,9 @@ Shiny is a light-weight web application framework. What does that mean?
 
 It means that Shiny was built to execute R code dynamically based on user input. That's it.
 
-If you're trying to create a "heavy" website (e.g. lots of users, complex database structure, etc.) or a native mobile app (like the kind you install of your iThing), then you should probably look elsewhere.
+If you're trying to create a "heavy" website (e.g. lots of users, complex database structure, etc.) or a native mobile app (like the kind you install on your iThing ... ), then you should probably look elsewhere.
 
-Shiny is built to run code written in R, and it can showcase any of the computational "stuff" R is capable of.
+Shiny is built to run code written in R, and it can showcase any of the computational power R is capable of.
 
 It's maintained by RStudio, and there's robust documentation and resources for both beginners and advanced Shiny developers:
 
@@ -18,7 +18,7 @@ It's maintained by RStudio, and there's robust documentation and resources for b
 - [Collection of posts covering the basics of layout, reactivity and extensions for Shiny](http://shiny.rstudio.com/articles/)
 - [RStudio 'cheatsheet' for Shiny](https://www.rstudio.com/wp-content/uploads/2015/02/shiny-cheatsheet.pdf)
 - [R-Bloggers articles featuring Shiny apps](http://www.r-bloggers.com/?s=shiny)
-- [RStudio webinar slides for getting started with Shiny](http://bit.ly/shiny-quickstart-1)
+- [RStudio webinar slides for getting started with Shiny](https://github.com/rstudio/webinars)
 
 ## 'Bones' of a Shiny App
 
@@ -450,7 +450,8 @@ N.B. Each of these solutions has advantages and disadvantages. If you're interes
 ```R
 # install.packages("devtools") # http://shiny.rstudio.com/articles/shinyapps.html
 # devtools::install_github('rstudio/rsconnect')
-library(rsconnect)
+# devtools::install_github("rstudio/shinyapps")
+library(shinyapps)
 deployApp()
 ```
 
