@@ -1,9 +1,4 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
+dat <- read.csv("authors.csv", stringsAsFactors = FALSE)
 
 library(shiny)
 
@@ -17,7 +12,7 @@ shinyUI(fluidPage(
     sidebarPanel(
         selectInput(inputId = "author1",
                     label="First Author",
-                    choices = c("Gawande AA", "Carson BS", "Oz MC")),
+                    choices = dat$search_name),
         selectInput(inputId = "author2",
                     label="Second Author",
                     choices = c("Gawande AA", "Carson BS", "Oz MC")),
