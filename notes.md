@@ -414,8 +414,6 @@ N.B. Each of these solutions has advantages and disadvantages. If you're interes
 library(shinyapps)
 deployApp()
 ```
-
-[Shiny Gadgets](http://shiny.rstudio.com/articles/gadgets.html)
 <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
 <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/github.min.css">
 <script>
