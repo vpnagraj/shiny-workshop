@@ -1,10 +1,12 @@
 # Building ‘Shiny’ Web Applications In R
 
-*Shiny is a framework for developing interactive, web-based tools with R. This workshop will cover how to create a basic user interface, add reactive widgets and publish a Shiny app. No web development experience is required. Some familiarity with R will be helpful.*
+> Shiny is a framework for developing interactive, web-based tools with R. This workshop will cover how to create a basic user interface, add reactive widgets and publish a Shiny app. No web development experience is required. Some familiarity with R will be helpful.
 
 ## Introduction
 
-Shiny is a light-weight web application framework. What does that mean? 
+Shiny is a light-weight web application framework for interactive data exploration. 
+
+What does that mean? 
 
 It means that Shiny was built to execute R code dynamically based on user input. That's it.
 
@@ -40,63 +42,42 @@ This will create a ui.R, server.R and .Rproj file (which is useful for maintaini
 
 ## Scratch
 
-The server.R script does the "work" for your Shiny app. Functionally you can do anything in a server.R script that you can in a regular R script. The only difference is that the parameter(s) you pass can into that R code can be set by a user via input widgets. 
+The server.R script does the "work" for your Shiny app. Functionally you can do anything in a server.R script that you can in a regular R script. The only difference is that the parameter(s) you pass into that R code can be set by a user via input widgets. 
 
 So before you sink a bunch of time into creating an app that passes the parameters _dynamically_, you probably want to test that they work _statically_. One way to do this is to create a "scratch" script – this will be a place for you to get your code working with a single input. Once it's working here, you can figure out which pieces you'd like to dynamically change within the ui.R script.
 
 And it's worth pointing out that creating another file with a ".R" extension in the same directory as your ui.R and server.R files won't cause any conflicts.
 
 ```R
-# install and load reentrez package for pubmed query
-#install.packages("rentrez")
-library(rentrez)
-
-# specify author
-author <- "Gawande AA"
-
-# build query string
-myterm <- paste(author, "[Author]", sep="")
-
-# run query
-q <- entrez_search("pubmed", myterm, retmax = 9999)
-
-# check that it worked
-q$ids
-q$count
-
-# make a data frame out of the author and count
-df <- data.frame(Author=author, Total.Publications = as.numeric(q$count))
-
-# specify another author
-author2 <- "Oz MC"
-
-# build another query string
-myterm2 <- paste(author2, "[Author]", sep="")
-
-# run another query
-q2 <- entrez_search("pubmed", myterm2, retmax = 9999)
-
-# make another data frame out of the author and count
-df2 <- data.frame(Author=author2, Total.Publications = as.numeric(q2$count))
-
-# combine the two data frames
-combo_df <- rbind(df,df2)
-
-# load ggplot2 for viz
+library(readr)
+library(dplyr)
 library(ggplot2)
+library(lubridate)
 
-# make a barplot of publication counts by authors
-g <- 
-    ggplot(combo_df, aes(x=Author, y=Total.Publications)) +
-    geom_bar(stat = "identity") +
-    ggtitle("Pubmed Publication Authorship Comparison")
-g
+# read in the data from github
+moma <- read_csv("https://raw.githubusercontent.com/MuseumofModernArt/collection/master/Artworks.csv")
 
+# take a look at the summary
+summary(moma)
+
+# let's assume we want to look at number of works by year ...
+
+# now do some dplyr magic to aggregate our data on year acquired
+moma_by_year <- 
+    moma %>%
+    filter(!is.na(DateAcquired)) %>%
+    mutate(year.acquired = year(DateAcquired)) %>%
+    group_by(year.acquired) %>%
+    summarise(nworks = n())
+
+# plot what we have and see what it looks
+ggplot(moma_by_year, aes(year.acquired, nworks)) +
+    geom_line(stat = "identity")
 ```
 
 ## Layouts
 
-The code you've written will be the basis of your server.R script. Before you can implement that, you need to make some decisions about layout. As a default, shiny uses the Bootstrap grid system. You can customize this to include sidebars, navbars, columns and more. All of the layout is handled within the ui.R file.
+The code you've written will be the basis of your server.R script. Before you can implement that, you need to make some decisions about layout. As a default, Shiny uses the Bootstrap grid system. You can customize this to include sidebars, navbars, columns and more. All of the layout is handled within the ui.R file.
 
 ui.R is a essentially a collection of nested functions ... that's why the code can be kind of hard to look at. The baseline function is ```shinyUI()```
 
@@ -146,26 +127,19 @@ Every widget needs a name – this is a semi-arbitrary distinction you can make 
 library(shiny)
 
 shinyUI(fluidPage(
-    
-    # Application title
-    titlePanel("Pubmed Publication Authorship"),
-    
-    sidebarLayout(
-        sidebarPanel(
-            selectInput(inputId = "author1",
-                        label = "First Author",
-                        choices = "Gawande AA"),   
-            selectInput(inputId = "author2",
-                        label = "Second Author",
-                        choices = "Oz MC")
-        ),
-        
-        mainPanel(
-            plotOutput("comparison")
-        )
-    )
-))
 
+  titlePanel("MOMA Acquistions Over Time"),
+
+    sidebarLayout(
+    sidebarPanel(
+     selectInput("department", label = "Department", choices = unique(moma$Department))
+    ),
+
+    mainPanel(
+      plotOutput("yearplot")
+    )
+  )
+))
 ```
 
 ## Syntax / Punctuation
@@ -200,38 +174,29 @@ The last step is to assign the output in the server script to a render function 
 
 ```R
 library(shiny)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
 
 shinyServer(function(input, output) {
-                     
-    output$comparison <- renderPlot({
 
-      library(rentrez)
-      author <- input$author1
-      myterm <- paste(author, "[Author]", sep="")
+  output$yearplot <- renderPlot({
+    
+      # read in the data from github
+      moma <- read_csv("https://raw.githubusercontent.com/MuseumofModernArt/collection/master/Artworks.csv")
       
+      moma_by_year <- 
+          moma %>%
+          filter(Department == input$department) %>%
+          filter(!is.na(DateAcquired)) %>%
+          mutate(year.acquired = year(DateAcquired)) %>%
+          group_by(year.acquired) %>%
+          summarise(nworks = n())
       
-      q <- entrez_search("pubmed", myterm, retmax = 9999)
-      q$ids
-      q$count
-      
-      df <- data.frame(Author=author, Total.Publications = as.numeric(q$count))
-      
-      author2 <- input$author2
-      myterm2 <- paste(author2, "[Author]", sep="")
-      
-      q2 <- entrez_search("pubmed", myterm2, retmax = 9999)
-      
-      df2 <- data.frame(Author=author2, Total.Publications = as.numeric(q2$count))
-      
-      combo_df <- rbind(df,df2)
-      
-      library(ggplot2)
-      
-      g <- 
-          ggplot(combo_df, aes(x=Author, y=Total.Publications)) +
-          geom_bar(stat = "identity") +
-          ggtitle("Pubmed Publication Authorship Comparison")
-      g
+      ggplot(moma_by_year, aes(year.acquired, nworks)) +
+          geom_line(stat = "identity")
+
   })
 
 })
@@ -265,80 +230,69 @@ Shiny makes it possible to manage reactivity in different ways:
 
 - You can *trigger* reactions with ```observeEvent()```
 
-- You can *customize* reactions with ```reactiveValues()```
+Reactivity is a beast.
 
-Credit is due to the RStudio group that put together the Shiny webinar series ... [their material](https://github.com/rstudio/webinars/blob/master/09-How-to-start-with-Shiny-Part-2/02-How-to-start-2.pdf) makes it much easier to understand the concept of reactivity.
+Credit is due to the RStudio group that put together the Shiny webinar series ... [their material](https://github.com/rstudio/webinars/blob/master/09-How-to-start-with-Shiny-Part-2/02-How-to-start-2.pdf) makes it much easier to understand the concept.
+
 
 ```R
 library(shiny)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+options(shiny.reactlog=TRUE)
 
 shinyServer(function(input, output) {
+  
+  dat <- reactive({
+      
+      moma <- read_csv("https://raw.githubusercontent.com/MuseumofModernArt/collection/master/Artworks.csv")
+      
+      moma_by_year <- 
+          moma %>%
+          filter(Department == input$department) %>%
+          filter(!is.na(DateAcquired)) %>%
+          mutate(year.acquired = year(DateAcquired)) %>%
+          group_by(year.acquired) %>%
+          summarise(nworks = n())
+      
+  })
+  
+  output$yearplot <- renderPlot({
     
-    observeEvent(input$search, {
-                 
-    output$comparison <- renderPlot({
+      ggplot(dat(), aes(year.acquired, nworks)) +
+          geom_line(stat = "identity")
 
-      library(rentrez)
-      author <- input$author1
-      myterm <- paste(author, "[Author]", sep="")
+  })
+   
+  output$yeartable <- renderDataTable({
       
+      arrange(dat(), desc(nworks))
       
-      q <- entrez_search("pubmed", myterm, retmax = 9999)
-      q$ids
-      q$count
-      
-      df <- data.frame(Author=author, Total.Publications = as.numeric(q$count))
-      
-      author2 <- input$author2
-      myterm2 <- paste(author2, "[Author]", sep="")
-      
-      q2 <- entrez_search("pubmed", myterm2, retmax = 9999)
-      
-      df2 <- data.frame(Author=author2, Total.Publications = as.numeric(q2$count))
-      
-      combo_df <- rbind(df,df2)
-      
-      library(ggplot2)
-      
-      g <- 
-          ggplot(combo_df, aes(x=Author, y=Total.Publications)) +
-          geom_bar(stat = "identity") +
-          ggtitle("Pubmed Publication Authorship Comparison")
-      g
   })
 
 })
-
-})
 ```
-
 ```R
 library(shiny)
 
 shinyUI(fluidPage(
 
-  # Application title
-  titlePanel("Pubmed Publication Authorship"),
+  titlePanel("MOMA Acquistions Over Time"),
 
-  sidebarLayout(
+    sidebarLayout(
     sidebarPanel(
-      selectInput(inputId = "author1",
-                  label = "First Author",
-                  choices = "Gawande AA"),   
-      selectInput(inputId = "author2",
-                  label = "Second Author",
-                  choices = "Oz MC"),
-      actionButton(inputId = "search", 
-                   label="Make it so ...")
-  ),
+     selectInput("department", label = "Department", choices = unique(moma$Department))
+    ),
 
     mainPanel(
-      plotOutput("comparison")
+      plotOutput("yearplot"),
+      dataTableOutput("yeartable")
     )
   )
 ))
 ```
-
 ## Loading Data
 
 In some cases, it makes sense to create objects before any of the reactive stuff kicks off.
@@ -348,34 +302,47 @@ For example, you might want to load a dataset to be filtered and analyzed by the
 Anything before the ```shinyUI()``` or ```shinyServer()``` functions is only run once (when the server is started) and is available for use in the environment.
 
 ```R
+save(moma, file = "moma.rda")
+```
+
+```R
 library(shiny)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+options(shiny.reactlog=TRUE)
 
-authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
-author_vec <- authors$search_name
-names(author_vec) <- authors$display_name
+load("moma.rda")
 
-shinyUI(fluidPage(
+shinyServer(function(input, output) {
+  
+  dat <- reactive({
+      
+      moma_by_year <- 
+          moma %>%
+          filter(Department == input$department) %>%
+          filter(!is.na(DateAcquired)) %>%
+          mutate(year.acquired = year(DateAcquired)) %>%
+          group_by(year.acquired) %>%
+          summarise(nworks = n())
+      
+  })
+  
+  output$yearplot <- renderPlot({
+    
+      ggplot(dat(), aes(year.acquired, nworks)) +
+          geom_line(stat = "identity")
 
-  # Application title
-  titlePanel("Pubmed Publication Authorship"),
+  })
+   
+  output$yeartable <- renderDataTable({
+      
+      arrange(dat(), desc(nworks))
+      
+  })
 
-  sidebarLayout(
-    sidebarPanel(
-    selectInput(inputId = "author1",
-                label = "First Author",
-                choices = author_vec),
-    selectInput(inputId = "author2",
-                label = "Second Author",
-                choices = author_vec),
-      actionButton(inputId = "search", 
-                   label="Make it so ...")
-  ),
-
-    mainPanel(
-      plotOutput("comparison")
-    )
-  )
-))
+})
 ```
 
 ## Theming
@@ -396,29 +363,18 @@ And if you just want to try out some different theming options (for font size, b
 library(shiny)
 library(shinythemes)
 
-authors <- read.csv("authors.csv",stringsAsFactors = FALSE)
-author_vec <- authors$search_name
-names(author_vec) <- authors$display_name
+shinyUI(fluidPage(theme = shinytheme("flatly"),
 
-shinyUI(fluidPage(theme = shinytheme("journal"),
+  titlePanel("MOMA Acquistions Over Time"),
 
-  # Application title
-  titlePanel("Pubmed Publication Authorship"),
-
-  sidebarLayout(
+    sidebarLayout(
     sidebarPanel(
-    selectInput(inputId = "author1",
-                label = "First Author",
-                choices = author_vec),
-    selectInput(inputId = "author2",
-                label = "Second Author",
-                choices = author_vec),
-      actionButton(inputId = "search", 
-                   label="Make it so ...")
-  ),
+     selectInput("department", label = "Department", choices = unique(moma$Department))
+    ),
 
     mainPanel(
-      plotOutput("comparison")
+      plotOutput("yearplot"),
+      dataTableOutput("yeartable")
     )
   )
 ))
@@ -432,9 +388,9 @@ Your console pane in RStudio will tell you that your R session is busy listening
 
 And if you're not using RStudio (or if you want to customize _how_ the app is running) it's possible to start the app with ```runApp()```
 
-```R
+`
 runApp(display.mode="showcase")
-```
+`
 
 ## Hosting
 
@@ -451,10 +407,17 @@ There are a few avenues you could pursue:
 N.B. Each of these solutions has advantages and disadvantages. If you're intereseted in hosting an app, think long and hard about the budget you have for you app, the longevity of the project and any security concerns you have for the data involved.
 
 ```R
-# install.packages("devtools") # http://shiny.rstudio.com/articles/shinyapps.html
+# http://shiny.rstudio.com/articles/shinyapps.html
+# install.packages("devtools") 
 # devtools::install_github('rstudio/rsconnect')
 # devtools::install_github("rstudio/shinyapps")
 library(shinyapps)
 deployApp()
 ```
 
+[Shiny Gadgets](http://shiny.rstudio.com/articles/gadgets.html)
+<script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+<link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/github.min.css">
+<script>
+  hljs.initHighlightingOnLoad();
+</script>
