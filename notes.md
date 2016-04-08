@@ -404,7 +404,7 @@ There are a few avenues you could pursue:
 - [Shiny Server](https://www.rstudio.com/products/shiny/shiny-server/) (free but must be configured and installed on your hardware)
 - [Shiny Server Pro](https://www.rstudio.com/products/shiny-server-pro/) (fee-based but is professionally configured and maintained)
 
-N.B. Each of these solutions has advantages and disadvantages. If you're intereseted in hosting an app, think long and hard about the budget you have for you app, the longevity of the project and any security concerns you have for the data involved.
+N.B. Each of these solutions has advantages and disadvantages. If you're intereseted in hosting an app, think long and hard about the budget you have for your app, the longevity of the project and any security concerns you have for the data involved.
 
 ```R
 # http://shiny.rstudio.com/articles/shinyapps.html
