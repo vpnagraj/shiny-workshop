@@ -392,6 +392,18 @@ And if you're not using RStudio (or if you want to customize _how_ the app is ru
 runApp(display.mode="showcase")
 `
 
+```runGithub()``` is another option. Somewhere in between ```runApp()``` and hosting, this method of running an app goes to a Github repository that contains an app and then runs it from your computer locally. It is worth mentioning that for this to work you'll need all of the packages that the app uses installed in your version of R. Try it out:
+
+```R
+install.packages("shiny")
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("babynames")
+install.packages("scales")
+
+shiny::runGitHub('names', 'vpnagraj') 
+```  
+
 ## Hosting
 
 Running your app locally is a great way to prototype. But it's local. That means only on your computer.
