@@ -49,30 +49,39 @@ So before you sink a bunch of time into creating an app that passes the paramete
 And it's worth pointing out that creating another file with a ".R" extension in the same directory as your ui.R and server.R files won't cause any conflicts.
 
 ```R
-library(readr)
-library(dplyr)
+# install.packages("rentrez")
+library(rentrez)
+
+# install.packages("ggplot2")
 library(ggplot2)
-library(lubridate)
 
-# read in the data from github
-moma <- read_csv("https://raw.githubusercontent.com/MuseumofModernArt/collection/master/Artworks.csv")
+# install.packages("highcharter")
+library(highcharter)
 
-# take a look at the summary
-summary(moma)
+pubs <- entrez_search(db = "pubmed", term = "zika AND (2016[PDAT])")
 
-# let's assume we want to look at number of works by year ...
+pubs$count
 
-# now do some dplyr magic to aggregate our data on year acquired
-moma_by_year <- 
-    moma %>%
-    filter(!is.na(DateAcquired)) %>%
-    mutate(year.acquired = year(DateAcquired)) %>%
-    group_by(year.acquired) %>%
-    summarise(nworks = n())
+pubcount <- function(year,term) {
+    
+    query <- paste(term, "AND (", year, "[PDAT])")
+    entrez_search(query, db = "pubmed")$count
+}
 
-# plot what we have and see what it looks
-ggplot(moma_by_year, aes(year.acquired, nworks)) +
-    geom_line(stat = "identity")
+pubcount(2016,"zika")
+
+year <- 2006:2016
+year
+
+pubs <- sapply(year, pubcount, term = "zika")
+
+df <- data.frame(year, pubs)
+df
+
+ggplot(df, aes(year, pubs)) +
+    geom_line()
+
+hchart(df, "line", x = year, y  = pubs)
 ```
 
 ## Layouts
@@ -128,15 +137,16 @@ library(shiny)
 
 shinyUI(fluidPage(
 
-  titlePanel("MOMA Acquistions Over Time"),
+  # Application title
+  titlePanel("PUBPOP"),
 
-    sidebarLayout(
+  sidebarLayout(
     sidebarPanel(
-     selectInput("department", label = "Department", choices = unique(moma$Department))
+        textInput("term", label = "pubmed search term", value = "zika")
     ),
 
     mainPanel(
-      plotOutput("yearplot")
+        plotOutput("yearplot")
     )
   )
 ))
@@ -173,32 +183,32 @@ Within the server.R script you'll need to call the UI output in the same way as 
 The last step is to assign the output in the server script to a render function (e.g. ```renderPlot()``` or ```renderText()```) that contains the scratch script modified with the 'input$' call.
 
 ```R
-library(shiny)
-library(readr)
-library(dplyr)
+library(rentrez)
 library(ggplot2)
-library(lubridate)
+library(highcharter)
 
 shinyServer(function(input, output) {
-
-  output$yearplot <- renderPlot({
     
-      # read in the data from github
-      moma <- read_csv("https://raw.githubusercontent.com/MuseumofModernArt/collection/master/Artworks.csv")
-      
-      moma_by_year <- 
-          moma %>%
-          filter(Department == input$department) %>%
-          filter(!is.na(DateAcquired)) %>%
-          mutate(year.acquired = year(DateAcquired)) %>%
-          group_by(year.acquired) %>%
-          summarise(nworks = n())
-      
-      ggplot(moma_by_year, aes(year.acquired, nworks)) +
-          geom_line(stat = "identity")
-
-  })
-
+    output$yearplot <- renderPlot({
+        
+        pubcount <- function(year,term) {
+            
+            query <- paste(term, "AND (", year, "[PDAT])")
+            entrez_search(query, db = "pubmed")$count
+        }
+        
+        year <- 2006:2016
+        
+        pubs <- sapply(year, pubcount, term = input$term)
+        
+        df <- data.frame(year, pubs)
+        
+        ggplot(df, aes(year, pubs)) +
+            geom_line() +
+            theme_minimal()
+        
+    })
+    
 })
 ```
 
@@ -234,44 +244,39 @@ Reactivity is a beast.
 
 Credit is due to the RStudio group that put together the Shiny webinar series ... [their material](https://github.com/rstudio/webinars/blob/master/09-How-to-start-with-Shiny-Part-2/02-How-to-start-2.pdf) makes it much easier to understand the concept.
 
-
 ```R
-library(shiny)
-library(readr)
-library(dplyr)
+library(rentrez)
 library(ggplot2)
-library(lubridate)
-options(shiny.reactlog=TRUE)
+library(highcharter)
 
 shinyServer(function(input, output) {
-  
-  dat <- reactive({
-      
-      moma <- read_csv("https://raw.githubusercontent.com/MuseumofModernArt/collection/master/Artworks.csv")
-      
-      moma_by_year <- 
-          moma %>%
-          filter(Department == input$department) %>%
-          filter(!is.na(DateAcquired)) %>%
-          mutate(year.acquired = year(DateAcquired)) %>%
-          group_by(year.acquired) %>%
-          summarise(nworks = n())
-      
-  })
-  
-  output$yearplot <- renderPlot({
     
-      ggplot(dat(), aes(year.acquired, nworks)) +
-          geom_line(stat = "identity")
+    dat <- eventReactive(input$go, {
+        
+        pubcount <- function(year,term) {
+            
+            query <- paste(term, "AND (", year, "[PDAT])")
+            entrez_search(query, db = "pubmed")$count
+        }
+        
+        year <- input$year[1]:input$year[2]
+        
+        pubs <- sapply(year, pubcount, term = input$term)
+        
+        df <- data.frame(year, pubs)
+        
+        df
+        
+    })
+    
+    output$yearplot <- renderPlot({
 
-  })
-   
-  output$yeartable <- renderDataTable({
-      
-      arrange(dat(), desc(nworks))
-      
-  })
-
+        ggplot(dat(), aes(year, pubs)) +
+            geom_line() +
+            theme_minimal()
+        
+    })
+    
 })
 ```
 ```R
@@ -279,16 +284,18 @@ library(shiny)
 
 shinyUI(fluidPage(
 
-  titlePanel("MOMA Acquistions Over Time"),
+  # Application title
+  titlePanel("PUBPOP"),
 
-    sidebarLayout(
+  sidebarLayout(
     sidebarPanel(
-     selectInput("department", label = "Department", choices = unique(moma$Department))
+        textInput("term", label = "pubmed search term", value = "zika"),
+        sliderInput("year", label = "year",min = 1950, max = 2016, value = c(2000,2016)),
+        actionButton("go", "Search")
     ),
 
     mainPanel(
-      plotOutput("yearplot"),
-      dataTableOutput("yeartable")
+        plotOutput("yearplot")
     )
   )
 ))
@@ -302,49 +309,65 @@ For example, you might want to load a dataset to be filtered and analyzed by the
 Anything before the ```shinyUI()``` or ```shinyServer()``` functions is only run once (when the server is started) and is available for use in the environment.
 
 ```R
-save(moma, file = "moma.rda")
+library(rentrez)
+library(ggplot2)
+library(highcharter)
+
+shinyServer(function(input, output) {
+    
+    dat <- eventReactive(input$go, {
+        
+        pubcount <- function(year,term) {
+            
+            query <- paste(term, "AND (", year, "[PDAT])")
+            entrez_search(query, db = "pubmed")$count
+        }
+        
+        year <- input$year[1]:input$year[2]
+        
+        pubs <- sapply(year, pubcount, term = input$term)
+        
+        df <- data.frame(year, pubs)
+        
+        df
+        
+    })
+    
+    output$yearplot <- renderPlot({
+
+        ggplot(dat(), aes(year, pubs)) +
+            geom_line() +
+            theme_minimal()
+        
+    })
+    
+})
 ```
 
 ```R
 library(shiny)
-library(readr)
-library(dplyr)
-library(ggplot2)
-library(lubridate)
-options(shiny.reactlog=TRUE)
 
-load("moma.rda")
+search_terms <- read.csv("pmsearchterms.csv", stringsAsFactors = FALSE)
 
-shinyServer(function(input, output) {
-  
-  dat <- reactive({
-      
-      moma_by_year <- 
-          moma %>%
-          filter(Department == input$department) %>%
-          filter(!is.na(DateAcquired)) %>%
-          mutate(year.acquired = year(DateAcquired)) %>%
-          group_by(year.acquired) %>%
-          summarise(nworks = n())
-      
-  })
-  
-  output$yearplot <- renderPlot({
-    
-      ggplot(dat(), aes(year.acquired, nworks)) +
-          geom_line(stat = "identity")
+shinyUI(fluidPage(
 
-  })
-   
-  output$yeartable <- renderDataTable({
-      
-      arrange(dat(), desc(nworks))
-      
-  })
+  # Application title
+  titlePanel("PUBPOP"),
 
-})
+  sidebarLayout(
+    sidebarPanel(
+        # textInput("term", label = "pubmed search term", value = "zika"),
+        selectInput("term", label = "pubmed search term", choices = search_terms$term),
+        sliderInput("year", label = "year",min = 1950, max = 2016, value = c(2000,2016)),
+        actionButton("go", "Search")
+    ),
+
+    mainPanel(
+        plotOutput("yearplot")
+    )
+  )
+))
 ```
-
 ## Theming
 
 This will be brief. 
@@ -363,18 +386,23 @@ And if you just want to try out some different theming options (for font size, b
 library(shiny)
 library(shinythemes)
 
+search_terms <- read.csv("~/Downloads/pmsearchterms.csv", stringsAsFactors = FALSE)
+
 shinyUI(fluidPage(theme = shinytheme("flatly"),
 
-  titlePanel("MOMA Acquistions Over Time"),
+  # Application title
+  titlePanel("PUBPOP"),
 
-    sidebarLayout(
+  sidebarLayout(
     sidebarPanel(
-     selectInput("department", label = "Department", choices = unique(moma$Department))
+        # textInput("term", label = "pubmed search term", value = "zika"),
+        selectInput("term", label = "pubmed search term", choices = search_terms$term),
+        sliderInput("year", label = "year",min = 1950, max = 2016, value = c(2000,2016)),
+        actionButton("go", "Search")
     ),
 
     mainPanel(
-      plotOutput("yearplot"),
-      dataTableOutput("yeartable")
+        plotOutput("yearplot")
     )
   )
 ))
